@@ -1,7 +1,7 @@
 const express = require('express')
 const path = require('path')
 const PORT = process.env.PORT || 5000
-const line = require('"@line/bot-sdk');
+const line = require('@line/bot-sdk');
 
 const config = {
   channelAccessToken: process.env.ACCESS_TOKEN,

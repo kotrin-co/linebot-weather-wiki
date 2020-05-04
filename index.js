@@ -3,9 +3,12 @@ const path = require('path')
 const PORT = process.env.PORT || 5000
 const line = require('@line/bot-sdk');
 
+const LINE_CHANNEL_ACCESS_TOKEN = '3xoDGJ8KgOVxVsyS4/XJwYqXOemYOX2b3mDioaOgnMv2jc2vkZcuGBnSzrehcK+sYXWEXgwraDP4DDvm6uiez8PChvb77gEAAtndU93wGwLN+LnsqVlLnQQN8ybt6wIquvnU/xFiobFIY5IOFLjclQdB04t89/1O/w1cDnyilFU=';    // LINE Botのアクセストークン
+const LINE_CHANNEL_SECRET = '8df5f91ca99d59fdf5be9877edb547a6';          // LINE BotのChannel Secret
+
 const config = {
-  channelAccessToken: process.env.ACCESS_TOKEN,
-  channelSecret: process.env.SECRET_KEY
+  channelAccessToken: LINE_CHANNEL_ACCESS_TOKEN,
+  channelSecret: LINE_CHANNEL_SECRET
 };
 
 const client = new line.Client(config);

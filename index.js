@@ -8,7 +8,7 @@ const config = {
   channelSecret: process.env.SECRET_KEY
 };
 
-
+const client = new line.Client(config);
 
 express()
   .use(express.static(path.join(__dirname, 'public')))
@@ -22,5 +22,21 @@ express()
 
   const lineBot = (req,res) => {
     res.status(200).end();
-    console.log('pass');
+    const events = req.body.events;
+    const promises = [];
+    for (let i=0,l=events.length;i<l;i++){
+      const ev = events[i];
+      promises.push(
+        echoman(ev)
+        );
+    }
+    Promise.all(promises).then(console.log('pass @@@@'));
+  }
+
+  const echoman = async (ev) => {
+    const pro = await client.getProfile(ev.source.userId);
+    return client.replyMessage(ev.replyToken,{
+      type:"text",
+      text:`${pro.displayName}さん、今「${ev.message.text}」って言いました？`
+    })
   }

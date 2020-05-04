@@ -15,7 +15,7 @@ const DOCOMO_API_KEY = '4450394e564d796730344a7757733044345237396b544d6f43314538
 const GURUNAVI_API_KEY = 'e439bdcc53f4e5a8d0a777656e3e26c3';             // ぐるなびAPI用：APIキー
 /*************************************************************************/
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 const LINE_MESSAGE_MAX_LENGTH = 2000;
 
 const NEW_LINE = '\n';
@@ -29,7 +29,7 @@ const config = {
 
 const app = express();
 
-app.post('/webhook', line.middleware(config), (req, res) => {
+app.post('/webhook/', line.middleware(config), (req, res) => {
 
   // 先行してLINE側にステータスコード200を返す
   res.sendStatus(200);

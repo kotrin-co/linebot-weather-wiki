@@ -37,6 +37,6 @@ express()
     const pro = await client.getProfile(ev.source.userId);
     return client.replyMessage(ev.replyToken,{
       type:"text",
-      text:`${pro.displayName}さん、今「${ev.message.text}」って言いました？`
+      text:`${pro.displayName}さん、今「${ev.message.text}」って言いました？${ev.message.text.length}文字`
     })
   }

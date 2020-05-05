@@ -180,7 +180,7 @@ const lookUpWords = async (userId,word) => {
       type:'text',
       text:message
     });
-  }).setMaxListener(10);
+  }).setMaxListeners(10);
 }
 
   // const lineBot = (req,res) => {

@@ -7,6 +7,8 @@ const axios = require('axios');
 const LINE_CHANNEL_ACCESS_TOKEN = '3xoDGJ8KgOVxVsyS4/XJwYqXOemYOX2b3mDioaOgnMv2jc2vkZcuGBnSzrehcK+sYXWEXgwraDP4DDvm6uiez8PChvb77gEAAtndU93wGwLN+LnsqVlLnQQN8ybt6wIquvnU/xFiobFIY5IOFLjclQdB04t89/1O/w1cDnyilFU=';    // LINE Botのアクセストークン
 const LINE_CHANNEL_SECRET = '8df5f91ca99d59fdf5be9877edb547a6';          // LINE BotのChannel Secret
 
+const LINE_MESSAGE_MAX_LENGTH = 2000;
+
 const NEW_LINE = '\n';
 
 const config = {
@@ -49,6 +51,11 @@ const handleEvent = (event) => {
   const text = (event.message.type === 'text') ? event.message.text : '';
   if(text === '天気'){
     checkWeatherForecast(event.source.userId);
+    message = 'ちょっと待ってね';
+  }else if(text.endsWith('を調べて')){
+    const length = 'を調べて'.length;
+    const word = text.slice(0,-length);
+    lookUpWords(event.source.userId,word);
     message = 'ちょっと待ってね';
   }else{
     message = text;
@@ -94,6 +101,84 @@ const checkWeatherForecast = async (userId) => {
     type:'text',
     text:message
   });
+}
+
+const lookUpWords = async (userId,word) => {
+  console.log('lookUpWords()');
+
+  const options = {
+    url:'https://ja.wikipedia.org/w/api.php',
+    qs:{
+      format:'json',
+      action:'query',
+      redirects:1,
+      list:'search',
+      srsearch:word,
+      srlimit:3,
+      prop:'extracts',
+      exchars:200,
+      explaintext:1
+    }
+  };
+
+  request(options,(err,response,result)=>{
+    let message = '';
+    if(!err && response.statusCode == 200){
+      const json = JSON.parse(result);
+      const search = json.query.search;
+      const wikiURL = 'https://ja.wikipedia.org/wiki/';
+      const mainTitle = '[検索結果]' + NEW_LINE;
+      message = mainTitle;
+
+      // オブジェクトのプロパティの値を配列で得る
+      Object.keys(search).some((key)=>{
+        if(key==-1){
+          message = 'ごめんなさい.' +NEW_LINE;
+          message += '該当ワードはありません.';
+          return true;
+        }
+        const item = search[key];
+        if(item.title && item.snippet){
+          let itemMessage = '';
+
+          if(message!= mainTitle){
+            itemMessage = NEW_LINE;
+            itemMessage += NEW_LINE;
+          }
+
+          const title = item.title;
+          let summary = item.snippet;
+          summary = summary.replace(/<span class="searchmatch">/g,'');
+          summary = summary.replace(/<\/span>/g,'');
+
+          itemMessage += '◆' + title + 'とは'+NEW_LINE;
+          itemMessage += summary + NEW_LINE;
+          itemMessage += NEW_LINE;
+          itemMessage += encodeURI(wikiURL+title);
+          if((message.length+itemMessage.length)>LINE_MESSAGE_MAX_LENGTH){
+            return true;
+          }
+          message += itemMessage;
+        }
+      });
+      if(message == mainTitle){
+        message = 'ごめんなさい。'+NEW_LINE;
+        message += '該当ワードはありません。';
+      }
+      console.log('message='+NEW_LINE);
+      console.log(message);
+    }else{
+      message='ごめんなさい。'+NEW_LINE;
+      message+='エラーが発生しました。';
+      console.log('error!!');
+      console.log('err:'+err+',response.statusCode'+response.statusCode);
+    }
+
+    client.pushMessage(userId,{
+      type:'text',
+      text:message
+    });
+  }).setMaxListener(10);
 }
 
   // const lineBot = (req,res) => {

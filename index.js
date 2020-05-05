@@ -122,17 +122,18 @@ const lookUpWords = async (userId,word) => {
     }
   };
 
-  request(options,(err,response,result)=>{
+  request(options, function(err,response,result) {
     let message = '';
     if(!err && response.statusCode == 200){
       const json = JSON.parse(result);
       const search = json.query.search;
       const wikiURL = 'https://ja.wikipedia.org/wiki/';
+
       const mainTitle = '[検索結果]' + NEW_LINE;
       message = mainTitle;
 
       // オブジェクトのプロパティの値を配列で得る
-      Object.keys(search).some((key)=>{
+      Object.keys(search).some( function(key){
         if(key==-1){
           message = 'ごめんなさい.' +NEW_LINE;
           message += '該当ワードはありません.';
